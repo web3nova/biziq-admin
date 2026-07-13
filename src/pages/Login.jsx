@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Shield, Loader2 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 
+const RESEND_COOLDOWN_S = 30
+
 export default function Login() {
-  const { requestOtp, verifyOtp } = useAuth()
+  const { requestOtp, verifyOtp, resendOtp } = useAuth()
   const navigate = useNavigate()
 
   const [step, setStep] = useState('credentials') // 'credentials' | 'otp'
@@ -14,6 +16,16 @@ export default function Login() {
   const [userId, setUserId] = useState(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [resending, setResending] = useState(false)
+  const [resendCooldown, setResendCooldown] = useState(0)
+  const [resendMessage, setResendMessage] = useState('')
+  const cooldownRef = useRef(null)
+
+  useEffect(() => {
+    if (resendCooldown <= 0) return
+    cooldownRef.current = setTimeout(() => setResendCooldown(c => c - 1), 1000)
+    return () => clearTimeout(cooldownRef.current)
+  }, [resendCooldown])
 
   const handleCredentials = async (e) => {
     e.preventDefault()
@@ -23,10 +35,27 @@ export default function Login() {
       const { userId } = await requestOtp(email, password)
       setUserId(userId)
       setStep('otp')
+      setResendCooldown(RESEND_COOLDOWN_S)
     } catch (err) {
       setError(err.message)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleResend = async () => {
+    if (resending || resendCooldown > 0) return
+    setError('')
+    setResendMessage('')
+    setResending(true)
+    try {
+      await resendOtp(userId)
+      setResendMessage('New code sent.')
+      setResendCooldown(RESEND_COOLDOWN_S)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setResending(false)
     }
   }
 
@@ -98,6 +127,7 @@ export default function Login() {
                 className="w-full px-3 py-3 text-center text-lg tracking-[0.5em] bg-gray-800 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-600"
               />
               {error && <p className="text-xs text-red-400">{error}</p>}
+              {resendMessage && !error && <p className="text-xs text-green-400">{resendMessage}</p>}
               <button
                 type="submit"
                 disabled={loading || code.length !== 6}
@@ -105,13 +135,23 @@ export default function Login() {
               >
                 {loading ? <Loader2 size={15} className="animate-spin" /> : 'Verify & Sign In'}
               </button>
-              <button
-                type="button"
-                onClick={() => { setStep('credentials'); setCode(''); setError('') }}
-                className="w-full text-xs text-gray-500 hover:text-gray-300"
-              >
-                Back
-              </button>
+              <div className="flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => { setStep('credentials'); setCode(''); setError(''); setResendMessage('') }}
+                  className="text-xs text-gray-500 hover:text-gray-300"
+                >
+                  Back
+                </button>
+                <button
+                  type="button"
+                  onClick={handleResend}
+                  disabled={resending || resendCooldown > 0}
+                  className="text-xs text-blue-400 hover:text-blue-300 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {resending ? 'Sending…' : resendCooldown > 0 ? `Resend code (${resendCooldown}s)` : 'Resend code'}
+                </button>
+              </div>
             </form>
           )}
         </div>

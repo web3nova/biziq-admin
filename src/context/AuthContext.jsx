@@ -44,6 +44,17 @@ export function AuthProvider({ children }) {
     return data.user
   }, [])
 
+  const resendOtp = useCallback(async (userId) => {
+    const res = await fetch(`${API_BASE}/auth/resend-otp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', accept: 'application/json' },
+      body: JSON.stringify({ userId }),
+    })
+    const body = await res.json().catch(() => ({}))
+    if (!res.ok) throw new Error(body?.message || 'Failed to resend code')
+    return true
+  }, [])
+
   const logout = useCallback(() => {
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')
@@ -53,7 +64,7 @@ export function AuthProvider({ children }) {
   }, [])
 
   return (
-    <AuthContext.Provider value={{ user, requestOtp, verifyOtp, logout }}>
+    <AuthContext.Provider value={{ user, requestOtp, verifyOtp, resendOtp, logout }}>
       {children}
     </AuthContext.Provider>
   )
