@@ -1,17 +1,24 @@
 import { useEffect, useState } from 'react'
-import { Building2, Users, ShoppingBag, CheckCircle2, XCircle } from 'lucide-react'
+import { Building2, Users, ShoppingBag, CheckCircle2, XCircle, TrendingUp } from 'lucide-react'
 import { apiFetch } from '../lib/apiFetch'
+import { PageHeader } from '../components/ui'
 
-function StatCard({ icon: Icon, label, value, color }) {
+function StatCard({ icon: Icon, label, value, color, accent }) {
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5">
-      <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: `${color}20` }}>
-          <Icon size={16} style={{ color }} />
+    <div className="relative bg-gray-900 border border-gray-800 rounded-2xl p-5 overflow-hidden">
+      <div className="absolute top-0 left-0 right-0 h-0.5" style={{ background: color }} />
+      <div className="flex items-center justify-between">
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${color}18` }}>
+          <Icon size={18} style={{ color }} />
         </div>
-        <span className="text-xs text-gray-400">{label}</span>
+        {accent && (
+          <span className="flex items-center gap-1 text-[11px] font-semibold text-green-400">
+            <TrendingUp size={11} /> {accent}
+          </span>
+        )}
       </div>
-      <div className="text-2xl font-semibold text-white mt-3">{value ?? '—'}</div>
+      <div className="text-2xl font-bold text-white mt-4 tracking-tight">{value ?? '—'}</div>
+      <div className="text-xs text-gray-500 mt-1">{label}</div>
     </div>
   )
 }
@@ -31,10 +38,7 @@ export default function Overview() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-semibold text-white">Platform Overview</h1>
-        <p className="text-sm text-gray-500 mt-1">Snapshot across every tenant on BizIQ.</p>
-      </div>
+      <PageHeader title="Overview" subtitle="Snapshot across every tenant on BizIQ." />
 
       {error && <p className="text-sm text-red-400">{error}</p>}
 

@@ -55,6 +55,28 @@ export function AuthProvider({ children }) {
     return true
   }, [])
 
+  const forgotPassword = useCallback(async (email) => {
+    const res = await fetch(`${API_BASE}/auth/forgot-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', accept: 'application/json' },
+      body: JSON.stringify({ email, origin: window.location.origin }),
+    })
+    const body = await res.json().catch(() => ({}))
+    if (!res.ok) throw new Error(body?.message || 'Failed to send reset email')
+    return true
+  }, [])
+
+  const resetPassword = useCallback(async (token, password) => {
+    const res = await fetch(`${API_BASE}/auth/reset-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', accept: 'application/json' },
+      body: JSON.stringify({ token, password }),
+    })
+    const body = await res.json().catch(() => ({}))
+    if (!res.ok) throw new Error(body?.message || 'Failed to reset password')
+    return true
+  }, [])
+
   const logout = useCallback(() => {
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')
@@ -64,7 +86,7 @@ export function AuthProvider({ children }) {
   }, [])
 
   return (
-    <AuthContext.Provider value={{ user, requestOtp, verifyOtp, resendOtp, logout }}>
+    <AuthContext.Provider value={{ user, requestOtp, verifyOtp, resendOtp, forgotPassword, resetPassword, logout }}>
       {children}
     </AuthContext.Provider>
   )

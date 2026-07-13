@@ -1,19 +1,8 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, Loader2, Users, ShoppingBag } from 'lucide-react'
+import { Search, Users, ShoppingBag, Building2, ChevronRight } from 'lucide-react'
 import { apiFetch } from '../lib/apiFetch'
-
-function StatusBadge({ status }) {
-  const styles = {
-    ACTIVE: 'bg-green-500/15 text-green-400',
-    SUSPENDED: 'bg-red-500/15 text-red-400',
-  }
-  return (
-    <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${styles[status] || 'bg-gray-500/15 text-gray-400'}`}>
-      {status}
-    </span>
-  )
-}
+import { Card, PageHeader, LoadingBlock, EmptyBlock, Avatar, Badge, btnDanger, btnSuccess } from '../components/ui'
 
 export default function Tenants() {
   const navigate = useNavigate()
@@ -60,12 +49,7 @@ export default function Tenants() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold text-white">Tenants</h1>
-          <p className="text-sm text-gray-500 mt-1">Every business registered on BizIQ.</p>
-        </div>
-      </div>
+      <PageHeader title="Tenants" subtitle="Every business registered on BizIQ." />
 
       <div className="relative max-w-sm">
         <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
@@ -73,19 +57,17 @@ export default function Tenants() {
           value={search}
           onChange={e => { setSearch(e.target.value); load(e.target.value) }}
           placeholder="Search by name, slug, or domain…"
-          className="w-full pl-9 pr-3 py-2 text-sm bg-gray-900 border border-gray-800 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
+          className="w-full pl-9 pr-3 py-2.5 text-sm bg-gray-900 border border-gray-800 rounded-xl text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-600 transition"
         />
       </div>
 
       {error && <p className="text-sm text-red-400">{error}</p>}
 
-      <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+      <Card className="overflow-hidden">
         {loading ? (
-          <div className="flex items-center justify-center py-16 text-gray-500 text-sm gap-2">
-            <Loader2 size={16} className="animate-spin" /> Loading tenants…
-          </div>
+          <LoadingBlock label="Loading tenants…" />
         ) : tenants.length === 0 ? (
-          <div className="py-16 text-center text-sm text-gray-500">No tenants found.</div>
+          <EmptyBlock icon={Building2} label="No tenants found." />
         ) : (
           <table className="w-full text-sm">
             <thead>
@@ -104,16 +86,21 @@ export default function Tenants() {
                 <tr
                   key={t.id}
                   onClick={() => navigate(`/tenants/${t.id}`)}
-                  className="hover:bg-gray-850 cursor-pointer"
+                  className="hover:bg-gray-850/60 cursor-pointer transition group"
                 >
                   <td className="px-5 py-3">
-                    <div className="font-medium text-gray-200">{t.name}</div>
-                    <div className="text-xs text-gray-500">{t.domain || `${t.slug}.biziq.online`}</div>
+                    <div className="flex items-center gap-3">
+                      <Avatar name={t.name} email={t.slug} size={32} />
+                      <div>
+                        <div className="font-medium text-gray-200">{t.name}</div>
+                        <div className="text-xs text-gray-500">{t.domain || `${t.slug}.biziq.online`}</div>
+                      </div>
+                    </div>
                   </td>
                   <td className="px-5 py-3 text-gray-400">
                     {t.subscription?.plan?.name || t.subscription?.status || '—'}
                   </td>
-                  <td className="px-5 py-3"><StatusBadge status={t.status} /></td>
+                  <td className="px-5 py-3"><Badge tone={t.status === 'ACTIVE' ? 'green' : 'red'}>{t.status}</Badge></td>
                   <td className="px-5 py-3 text-gray-400">
                     <span className="inline-flex items-center gap-1"><Users size={12} /> {t._count?.users ?? 0}</span>
                   </td>
@@ -122,24 +109,23 @@ export default function Tenants() {
                   </td>
                   <td className="px-5 py-3 text-gray-500 text-xs">{new Date(t.createdAt).toLocaleDateString()}</td>
                   <td className="px-5 py-3 text-right" onClick={e => e.stopPropagation()}>
-                    <button
-                      onClick={() => toggleStatus(t)}
-                      disabled={busyId === t.id}
-                      className={`text-xs font-semibold px-3 py-1.5 rounded-lg border transition disabled:opacity-50 ${
-                        t.status === 'ACTIVE'
-                          ? 'border-red-900 text-red-400 hover:bg-red-500/10'
-                          : 'border-green-900 text-green-400 hover:bg-green-500/10'
-                      }`}
-                    >
-                      {busyId === t.id ? '…' : t.status === 'ACTIVE' ? 'Suspend' : 'Activate'}
-                    </button>
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => toggleStatus(t)}
+                        disabled={busyId === t.id}
+                        className={t.status === 'ACTIVE' ? btnDanger : btnSuccess}
+                      >
+                        {busyId === t.id ? '…' : t.status === 'ACTIVE' ? 'Suspend' : 'Activate'}
+                      </button>
+                      <ChevronRight size={14} className="text-gray-700 group-hover:text-gray-500 transition" />
+                    </div>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         )}
-      </div>
+      </Card>
     </div>
   )
 }

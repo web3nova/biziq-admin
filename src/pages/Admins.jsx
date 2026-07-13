@@ -1,7 +1,8 @@
 import { useEffect, useState, useCallback } from 'react'
-import { Plus, Trash2, Loader2, X } from 'lucide-react'
+import { Plus, Trash2, Loader2, X, ShieldCheck, Mail } from 'lucide-react'
 import { apiFetch } from '../lib/apiFetch'
 import { useAuth } from '../context/AuthContext'
+import { Card, PageHeader, LoadingBlock, EmptyBlock, Avatar, btnPrimary, inputClass } from '../components/ui'
 
 export default function Admins() {
   const { user: me } = useAuth()
@@ -11,9 +12,10 @@ export default function Admins() {
   const [busyId, setBusyId] = useState(null)
 
   const [showForm, setShowForm] = useState(false)
-  const [form, setForm] = useState({ email: '', password: '', name: '' })
+  const [form, setForm] = useState({ email: '', name: '' })
   const [formError, setFormError] = useState('')
   const [saving, setSaving] = useState(false)
+  const [invited, setInvited] = useState(null)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -42,15 +44,21 @@ export default function Admins() {
         body: JSON.stringify(form),
       })
       const body = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(body?.message || 'Failed to create admin')
-      setForm({ email: '', password: '', name: '' })
-      setShowForm(false)
+      if (!res.ok) throw new Error(body?.message || 'Failed to invite admin')
+      setInvited(form.email)
+      setForm({ email: '', name: '' })
       load()
     } catch (err) {
       setFormError(err.message)
     } finally {
       setSaving(false)
     }
+  }
+
+  const closeForm = () => {
+    setShowForm(false)
+    setInvited(null)
+    setFormError('')
   }
 
   const handleDelete = async (id) => {
@@ -72,72 +80,89 @@ export default function Admins() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold text-white">Super Admins</h1>
-          <p className="text-sm text-gray-500 mt-1">People with full platform access.</p>
-        </div>
-        <button
-          onClick={() => setShowForm(v => !v)}
-          className="flex items-center gap-1.5 px-3 py-2 text-sm font-semibold text-white bg-blue-600 rounded-xl hover:bg-blue-500 transition"
-        >
-          <Plus size={14} /> Add Admin
-        </button>
-      </div>
+      <PageHeader
+        title="Super Admins"
+        subtitle="People with full platform access."
+        action={
+          <button onClick={() => setShowForm(v => !v)} className={btnPrimary}>
+            <Plus size={14} /> Invite Admin
+          </button>
+        }
+      />
 
       {showForm && (
-        <form onSubmit={handleCreate} className="bg-gray-900 border border-gray-800 rounded-2xl p-5 space-y-3 max-w-md">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-semibold text-white">New Super Admin</span>
-            <button type="button" onClick={() => setShowForm(false)} className="text-gray-500 hover:text-gray-300"><X size={16} /></button>
+        <Card className="p-5 max-w-md">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-sm font-semibold text-white">Invite Super Admin</span>
+            <button type="button" onClick={closeForm} className="text-gray-500 hover:text-gray-300"><X size={16} /></button>
           </div>
-          <input
-            type="text" placeholder="Name (optional)" value={form.name}
-            onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-            className="w-full px-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
-          />
-          <input
-            type="email" required placeholder="Email" value={form.email}
-            onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-            className="w-full px-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
-          />
-          <input
-            type="password" required minLength={8} placeholder="Password (min 8 chars)" value={form.password}
-            onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
-            className="w-full px-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
-          />
-          {formError && <p className="text-xs text-red-400">{formError}</p>}
-          <button
-            type="submit" disabled={saving}
-            className="w-full flex items-center justify-center gap-2 py-2 text-sm font-semibold text-white bg-blue-600 rounded-xl hover:bg-blue-500 transition disabled:opacity-50"
-          >
-            {saving ? <Loader2 size={14} className="animate-spin" /> : 'Create Admin'}
-          </button>
-        </form>
+
+          {invited ? (
+            <div className="flex flex-col items-center text-center gap-3 py-4">
+              <div className="w-11 h-11 rounded-full bg-blue-500/15 flex items-center justify-center">
+                <Mail size={20} className="text-blue-400" />
+              </div>
+              <p className="text-sm text-gray-300">
+                Invite sent to <span className="font-semibold text-white">{invited}</span>.
+              </p>
+              <p className="text-xs text-gray-500">They'll set their own password via the link in the email.</p>
+              <button onClick={closeForm} className="text-xs text-blue-400 hover:text-blue-300 mt-1">Done</button>
+            </div>
+          ) : (
+            <form onSubmit={handleCreate} className="space-y-3">
+              <p className="text-xs text-gray-500 -mt-2 mb-1">
+                They'll receive an email with a link to set their own password — you won't need to share credentials.
+              </p>
+              <input
+                type="text" placeholder="Name (optional)" value={form.name}
+                onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                className={inputClass}
+              />
+              <input
+                type="email" required placeholder="Email" value={form.email}
+                onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                className={inputClass}
+              />
+              {formError && <p className="text-xs text-red-400">{formError}</p>}
+              <button type="submit" disabled={saving} className={`${btnPrimary} w-full`}>
+                {saving ? <Loader2 size={14} className="animate-spin" /> : 'Send Invite'}
+              </button>
+            </form>
+          )}
+        </Card>
       )}
 
       {error && <p className="text-sm text-red-400">{error}</p>}
 
-      <div className="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+      <Card className="overflow-hidden">
         {loading ? (
-          <div className="flex items-center justify-center py-16 text-gray-500 text-sm gap-2">
-            <Loader2 size={16} className="animate-spin" /> Loading admins…
-          </div>
+          <LoadingBlock label="Loading admins…" />
+        ) : admins.length === 0 ? (
+          <EmptyBlock icon={ShieldCheck} label="No super admins yet." />
         ) : (
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-800 text-left text-xs text-gray-500">
-                <th className="px-5 py-3 font-medium">Name</th>
-                <th className="px-5 py-3 font-medium">Email</th>
+                <th className="px-5 py-3 font-medium">Admin</th>
                 <th className="px-5 py-3 font-medium">Added</th>
                 <th className="px-5 py-3 font-medium"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-800">
               {admins.map(a => (
-                <tr key={a.id}>
-                  <td className="px-5 py-3 text-gray-200">{a.name || '—'}</td>
-                  <td className="px-5 py-3 text-gray-400">{a.email}</td>
+                <tr key={a.id} className="hover:bg-gray-850/60 transition">
+                  <td className="px-5 py-3">
+                    <div className="flex items-center gap-3">
+                      <Avatar name={a.name} email={a.email} size={32} />
+                      <div>
+                        <div className="text-gray-200 font-medium">{a.name || '—'}</div>
+                        <div className="text-xs text-gray-500">{a.email}</div>
+                      </div>
+                      {a.id === me?.id && (
+                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400">You</span>
+                      )}
+                    </div>
+                  </td>
                   <td className="px-5 py-3 text-gray-500 text-xs">{new Date(a.createdAt).toLocaleDateString()}</td>
                   <td className="px-5 py-3 text-right">
                     {a.id !== me?.id && (
@@ -156,7 +181,7 @@ export default function Admins() {
             </tbody>
           </table>
         )}
-      </div>
+      </Card>
     </div>
   )
 }
