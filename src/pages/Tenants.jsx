@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Search, Loader2, Users, ShoppingBag } from 'lucide-react'
 import { apiFetch } from '../lib/apiFetch'
 
@@ -15,6 +16,7 @@ function StatusBadge({ status }) {
 }
 
 export default function Tenants() {
+  const navigate = useNavigate()
   const [tenants, setTenants] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -99,7 +101,11 @@ export default function Tenants() {
             </thead>
             <tbody className="divide-y divide-gray-800">
               {tenants.map(t => (
-                <tr key={t.id} className="hover:bg-gray-850">
+                <tr
+                  key={t.id}
+                  onClick={() => navigate(`/tenants/${t.id}`)}
+                  className="hover:bg-gray-850 cursor-pointer"
+                >
                   <td className="px-5 py-3">
                     <div className="font-medium text-gray-200">{t.name}</div>
                     <div className="text-xs text-gray-500">{t.domain || `${t.slug}.biziq.online`}</div>
@@ -115,7 +121,7 @@ export default function Tenants() {
                     <span className="inline-flex items-center gap-1"><ShoppingBag size={12} /> {t._count?.orders ?? 0}</span>
                   </td>
                   <td className="px-5 py-3 text-gray-500 text-xs">{new Date(t.createdAt).toLocaleDateString()}</td>
-                  <td className="px-5 py-3 text-right">
+                  <td className="px-5 py-3 text-right" onClick={e => e.stopPropagation()}>
                     <button
                       onClick={() => toggleStatus(t)}
                       disabled={busyId === t.id}

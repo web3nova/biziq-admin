@@ -5,6 +5,7 @@ import AdminLayout from './components/AdminLayout'
 import Login from './pages/Login'
 import Overview from './pages/Overview'
 import Tenants from './pages/Tenants'
+import TenantDetail from './pages/TenantDetail'
 import Admins from './pages/Admins'
 
 export default function App() {
@@ -23,6 +24,7 @@ export default function App() {
           >
             <Route index element={<Overview />} />
             <Route path="tenants" element={<Tenants />} />
+            <Route path="tenants/:id" element={<TenantDetail />} />
             <Route path="admins" element={<Admins />} />
           </Route>
         </Routes>
