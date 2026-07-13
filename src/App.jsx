@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
+import { NotificationProvider } from './context/NotificationContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import AdminLayout from './components/AdminLayout'
 import Login from './pages/Login'
@@ -11,6 +12,7 @@ import Admins from './pages/Admins'
 
 export default function App() {
   return (
+    <NotificationProvider>
     <AuthProvider>
       <BrowserRouter>
         <Routes>
@@ -32,5 +34,6 @@ export default function App() {
         </Routes>
       </BrowserRouter>
     </AuthProvider>
+    </NotificationProvider>
   )
 }

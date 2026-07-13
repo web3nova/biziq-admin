@@ -3,9 +3,11 @@ import { Plus, Trash2, Loader2, X, ShieldCheck, Mail } from 'lucide-react'
 import { apiFetch } from '../lib/apiFetch'
 import { useAuth } from '../context/AuthContext'
 import { Card, PageHeader, LoadingBlock, EmptyBlock, Avatar, btnPrimary, inputClass } from '../components/ui'
+import { useNotify } from '../context/NotificationContext'
 
 export default function Admins() {
   const { user: me } = useAuth()
+  const { confirmAction } = useNotify()
   const [admins, setAdmins] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -62,7 +64,8 @@ export default function Admins() {
   }
 
   const handleDelete = async (id) => {
-    if (!confirm('Remove this super admin? This cannot be undone.')) return
+    const confirmed = await confirmAction({ title: 'Remove this super admin?', message: 'This cannot be undone.', confirmLabel: 'Remove', danger: true })
+    if (!confirmed) return
     setBusyId(id)
     try {
       const res = await apiFetch(`/admin/admins/${id}`, { method: 'DELETE' })
