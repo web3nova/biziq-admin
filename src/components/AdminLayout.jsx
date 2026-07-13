@@ -1,7 +1,8 @@
 import { Outlet, NavLink } from 'react-router-dom'
-import { LayoutDashboard, Building2, ShieldCheck, LogOut, Zap } from 'lucide-react'
+import { LayoutDashboard, Building2, ShieldCheck, LogOut } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { Avatar } from './ui'
+import logoIcon from '../assets/logo-icon.png'
 
 const navItems = [
   { label: 'Overview', icon: LayoutDashboard, path: '/' },
@@ -16,9 +17,7 @@ export default function AdminLayout() {
     <div className="min-h-screen bg-gray-950 text-gray-100 flex">
       <aside className="w-64 flex-shrink-0 border-r border-gray-800/80 flex flex-col bg-gray-950/60">
         <div className="flex items-center gap-2.5 px-5 py-6">
-          <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/30">
-            <Zap size={16} className="text-white" fill="white" />
-          </div>
+          <img src={logoIcon} alt="" className="w-8 h-8 drop-shadow-[0_0_10px_rgba(65,102,245,0.3)]" />
           <div>
             <div className="text-sm font-semibold text-white leading-none tracking-tight">BizIQ</div>
             <div className="text-[10px] text-gray-500 mt-0.5">Admin Console</div>

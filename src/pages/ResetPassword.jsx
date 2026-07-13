@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useSearchParams, useNavigate, Link } from 'react-router-dom'
-import { Loader2, CheckCircle2, KeyRound } from 'lucide-react'
+import { Loader2, CheckCircle2 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import AuthShell from '../components/AuthShell'
 
@@ -57,7 +57,7 @@ export default function ResetPassword() {
   }
 
   return (
-    <AuthShell icon={KeyRound} title="Set your password">
+    <AuthShell title="Set your password">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-xs font-medium text-gray-400 mb-1.5">New password</label>

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Loader2, ArrowLeft, Mail, CheckCircle2 } from 'lucide-react'
+import { Loader2, ArrowLeft, CheckCircle2 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import AuthShell from '../components/AuthShell'
 
@@ -94,7 +94,7 @@ export default function Login() {
 
   if (step === 'forgot-sent') {
     return (
-      <AuthShell icon={Mail} title="Check your email">
+      <AuthShell title="Check your email">
         <div className="flex flex-col items-center text-center gap-3 py-2">
           <div className="w-12 h-12 rounded-full bg-blue-500/15 flex items-center justify-center">
             <CheckCircle2 size={22} className="text-blue-400" />
