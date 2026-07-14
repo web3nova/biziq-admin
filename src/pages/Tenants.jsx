@@ -1,8 +1,10 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, Users, ShoppingBag, Building2, ChevronRight } from 'lucide-react'
+import { Search, Users, ShoppingBag, Building2, ChevronRight, ChevronLeft } from 'lucide-react'
 import { apiFetch } from '../lib/apiFetch'
 import { Card, PageHeader, LoadingBlock, EmptyBlock, Avatar, Badge, btnDanger, btnSuccess } from '../components/ui'
+
+const PAGE_SIZE = 50
 
 export default function Tenants() {
   const navigate = useNavigate()
@@ -11,16 +13,20 @@ export default function Tenants() {
   const [search, setSearch] = useState('')
   const [busyId, setBusyId] = useState(null)
   const [error, setError] = useState('')
+  const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
 
-  const load = useCallback(async (q = '') => {
+  const load = useCallback(async (q = '', p = 1) => {
     setLoading(true)
     setError('')
     try {
-      const params = new URLSearchParams({ page: 1, limit: 50, ...(q ? { search: q } : {}) })
+      const params = new URLSearchParams({ page: p, limit: PAGE_SIZE, ...(q ? { search: q } : {}) })
       const res = await apiFetch(`/admin/tenants?${params}`)
       const body = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(body?.message || 'Failed to load tenants')
       setTenants(body?.data ?? [])
+      setTotal(body?.meta?.total ?? 0)
+      setPage(p)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -29,6 +35,8 @@ export default function Tenants() {
   }, [])
 
   useEffect(() => { load() }, [load])
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
 
   const toggleStatus = async (tenant) => {
     setBusyId(tenant.id)
@@ -55,7 +63,7 @@ export default function Tenants() {
         <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
         <input
           value={search}
-          onChange={e => { setSearch(e.target.value); load(e.target.value) }}
+          onChange={e => { setSearch(e.target.value); load(e.target.value, 1) }}
           placeholder="Search by name, slug, or domain…"
           className="w-full pl-9 pr-3 py-2.5 text-sm bg-white border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 transition"
         />
@@ -126,6 +134,30 @@ export default function Tenants() {
           </table>
         )}
       </Card>
+
+      {!loading && tenants.length > 0 && totalPages > 1 && (
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-gray-400">
+            Page {page} of {totalPages} · {total} tenant{total === 1 ? '' : 's'}
+          </span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => load(search, page - 1)}
+              disabled={page <= 1}
+              className="flex items-center gap-1 px-3 py-2 text-xs font-semibold rounded-lg border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <ChevronLeft size={13} /> Previous
+            </button>
+            <button
+              onClick={() => load(search, page + 1)}
+              disabled={page >= totalPages}
+              className="flex items-center gap-1 px-3 py-2 text-xs font-semibold rounded-lg border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Next <ChevronRight size={13} />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
