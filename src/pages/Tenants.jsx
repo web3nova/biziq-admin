@@ -101,7 +101,15 @@ export default function Tenants() {
                       <Avatar name={t.name} email={t.slug} src={t.logoUrl} size={32} />
                       <div>
                         <div className="font-medium text-gray-900">{t.name}</div>
-                        <div className="text-xs text-gray-400">{t.domain || `${t.slug}.biziq.online`}</div>
+                        <a
+                          href={`https://${t.domain || `biziq.online/b/${t.slug}`}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          onClick={e => e.stopPropagation()}
+                          className="text-xs text-gray-400 hover:underline"
+                        >
+                          {t.domain || `biziq.online/b/${t.slug}`}
+                        </a>
                       </div>
                     </div>
                   </td>

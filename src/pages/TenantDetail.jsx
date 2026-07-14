@@ -163,7 +163,14 @@ export default function TenantDetail() {
           <Avatar name={tenant.name} email={tenant.slug} src={tenant.logoUrl} size={44} />
           <div>
             <h1 className="text-xl font-bold text-gray-900 tracking-tight">{tenant.name}</h1>
-            <p className="text-sm text-gray-400 mt-0.5">{tenant.domain || `${tenant.slug}.biziq.online`}</p>
+            <a
+              href={`https://${tenant.domain || `biziq.online/b/${tenant.slug}`}`}
+              target="_blank"
+              rel="noreferrer"
+              className="text-sm text-gray-400 hover:underline mt-0.5 inline-block"
+            >
+              {tenant.domain || `biziq.online/b/${tenant.slug}`}
+            </a>
           </div>
         </div>
         <button
