@@ -45,14 +45,14 @@ export function NotificationProvider({ children }) {
         {toasts.map(t => {
           const Icon = t.type === 'error' ? AlertCircle : t.type === 'info' ? AlertTriangle : CheckCircle2
           const styles = t.type === 'error'
-            ? 'bg-red-500/10 border-red-900/60 text-red-400'
+            ? 'bg-red-50 border-red-100 text-red-700'
             : t.type === 'info'
-              ? 'bg-amber-500/10 border-amber-900/60 text-amber-400'
-              : 'bg-green-500/10 border-green-900/60 text-green-400'
+              ? 'bg-amber-50 border-amber-100 text-amber-700'
+              : 'bg-green-50 border-green-100 text-green-700'
           return (
             <div
               key={t.id}
-              className={`pointer-events-auto flex items-center gap-2 px-4 py-3 rounded-xl border text-sm shadow-lg max-w-sm backdrop-blur transition-all duration-150 ${styles}`}
+              className={`pointer-events-auto flex items-center gap-2 px-4 py-3 rounded-xl border text-sm shadow-lg max-w-sm transition-all duration-150 ${styles}`}
             >
               <Icon size={16} className="flex-shrink-0" />
               <span className="flex-1">{t.message}</span>
@@ -67,22 +67,22 @@ export function NotificationProvider({ children }) {
       {confirmState && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/60" onClick={() => closeConfirm(false)}>
           <div
-            className="bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl max-w-sm w-full p-6"
+            className="bg-white border border-gray-100 rounded-2xl shadow-2xl max-w-sm w-full p-6"
             onClick={e => e.stopPropagation()}
           >
             <div className="flex items-start gap-3 mb-4">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${confirmState.danger ? 'bg-red-500/15' : 'bg-blue-500/15'}`}>
-                <AlertTriangle size={18} className={confirmState.danger ? 'text-red-400' : 'text-blue-400'} />
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${confirmState.danger ? 'bg-red-50' : 'bg-blue-50'}`}>
+                <AlertTriangle size={18} className={confirmState.danger ? 'text-red-600' : ''} style={!confirmState.danger ? { color: '#4166F5' } : undefined} />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-white">{confirmState.title}</h3>
+                <h3 className="text-sm font-semibold text-gray-900">{confirmState.title}</h3>
                 {confirmState.message && <p className="text-sm text-gray-400 mt-1">{confirmState.message}</p>}
               </div>
             </div>
             <div className="flex gap-2 justify-end">
               <button
                 onClick={() => closeConfirm(false)}
-                className="px-4 py-2 text-sm font-semibold text-gray-400 border border-gray-800 rounded-xl hover:bg-gray-850 transition"
+                className="px-4 py-2 text-sm font-semibold text-gray-500 border border-gray-200 rounded-xl hover:bg-gray-50 transition"
               >
                 {confirmState.cancelLabel}
               </button>

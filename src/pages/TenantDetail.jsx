@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Loader2, Ban, CheckCircle2, Users, ShoppingBag, CreditCard } from 'lucide-react'
 import { apiFetch } from '../lib/apiFetch'
-import { Card, LoadingBlock, Avatar, Badge, btnDanger, btnSuccess, btnPrimary, inputClass } from '../components/ui'
+import { Card, LoadingBlock, Avatar, Badge, btnDanger, btnSuccess, btnPrimary, btnPrimaryStyle, inputClass, PRIMARY } from '../components/ui'
 
 function StatChip({ icon: Icon, label, value, color }) {
   return (
@@ -12,8 +12,8 @@ function StatChip({ icon: Icon, label, value, color }) {
           <Icon size={16} style={{ color }} />
         </div>
         <div>
-          <div className="text-lg font-bold text-white leading-none">{value}</div>
-          <div className="text-[11px] text-gray-500 mt-1">{label}</div>
+          <div className="text-lg font-bold text-gray-900 leading-none">{value}</div>
+          <div className="text-[11px] text-gray-400 mt-1">{label}</div>
         </div>
       </div>
     </Card>
@@ -150,20 +150,20 @@ export default function TenantDetail() {
   }
 
   if (loading) return <LoadingBlock label="Loading tenant…" />
-  if (!tenant) return <p className="text-sm text-red-400">{error || 'Tenant not found.'}</p>
+  if (!tenant) return <p className="text-sm text-red-600">{error || 'Tenant not found.'}</p>
 
   return (
     <div className="space-y-6">
-      <button onClick={() => navigate('/tenants')} className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-300 transition">
+      <button onClick={() => navigate('/tenants')} className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 transition">
         <ArrowLeft size={14} /> Back to Tenants
       </button>
 
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
-          <Avatar name={tenant.name} email={tenant.slug} size={44} />
+          <Avatar name={tenant.name} email={tenant.slug} src={tenant.logoUrl} size={44} />
           <div>
-            <h1 className="text-xl font-semibold text-white tracking-tight">{tenant.name}</h1>
-            <p className="text-sm text-gray-500 mt-0.5">{tenant.domain || `${tenant.slug}.biziq.online`}</p>
+            <h1 className="text-xl font-bold text-gray-900 tracking-tight">{tenant.name}</h1>
+            <p className="text-sm text-gray-400 mt-0.5">{tenant.domain || `${tenant.slug}.biziq.online`}</p>
           </div>
         </div>
         <button
@@ -171,8 +171,8 @@ export default function TenantDetail() {
           disabled={busy === 'tenant-status'}
           className={`flex items-center gap-1.5 text-sm font-semibold px-4 py-2.5 rounded-xl border transition disabled:opacity-50 ${
             tenant.status === 'ACTIVE'
-              ? 'border-red-900/60 text-red-400 hover:bg-red-500/10'
-              : 'border-green-900/60 text-green-400 hover:bg-green-500/10'
+              ? 'border-red-100 text-red-600 hover:bg-red-50'
+              : 'border-green-100 text-green-700 hover:bg-green-50'
           }`}
         >
           {tenant.status === 'ACTIVE' ? <Ban size={14} /> : <CheckCircle2 size={14} />}
@@ -180,7 +180,7 @@ export default function TenantDetail() {
         </button>
       </div>
 
-      {error && <p className="text-sm text-red-400">{error}</p>}
+      {error && <p className="text-sm text-red-600">{error}</p>}
 
       <div className="grid grid-cols-3 gap-4">
         <StatChip icon={tenant.status === 'ACTIVE' ? CheckCircle2 : Ban} label="Status" value={tenant.status} color={tenant.status === 'ACTIVE' ? '#16a34a' : '#dc2626'} />
@@ -191,15 +191,15 @@ export default function TenantDetail() {
       {/* Plan override */}
       <Card className="p-5 space-y-4">
         <div className="flex items-center gap-2">
-          <CreditCard size={15} className="text-blue-400" />
+          <CreditCard size={15} style={{ color: PRIMARY }} />
           <div>
-            <h2 className="text-sm font-semibold text-white">Subscription</h2>
-            <p className="text-xs text-gray-500 mt-0.5">Manually override the plan, status, or renewal date.</p>
+            <h2 className="text-sm font-semibold text-gray-900">Subscription</h2>
+            <p className="text-xs text-gray-400 mt-0.5">Manually override the plan, status, or renewal date.</p>
           </div>
         </div>
         <form onSubmit={savePlan} className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
           <div>
-            <label className="block text-[11px] text-gray-500 mb-1.5">Plan</label>
+            <label className="block text-[11px] text-gray-400 mb-1.5">Plan</label>
             <select
               value={planForm.planId}
               onChange={e => setPlanForm(f => ({ ...f, planId: e.target.value }))}
@@ -210,7 +210,7 @@ export default function TenantDetail() {
             </select>
           </div>
           <div>
-            <label className="block text-[11px] text-gray-500 mb-1.5">Status</label>
+            <label className="block text-[11px] text-gray-400 mb-1.5">Status</label>
             <select
               value={planForm.status}
               onChange={e => setPlanForm(f => ({ ...f, status: e.target.value }))}
@@ -221,7 +221,7 @@ export default function TenantDetail() {
             </select>
           </div>
           <div>
-            <label className="block text-[11px] text-gray-500 mb-1.5">Renews At</label>
+            <label className="block text-[11px] text-gray-400 mb-1.5">Renews At</label>
             <input
               type="date"
               value={planForm.renewsAt}
@@ -230,64 +230,64 @@ export default function TenantDetail() {
             />
           </div>
           <div className="sm:col-span-3 flex items-center gap-3 pt-1">
-            <button type="submit" disabled={planSaving} className={btnPrimary}>
+            <button type="submit" disabled={planSaving} className={btnPrimary} style={btnPrimaryStyle}>
               {planSaving ? <Loader2 size={14} className="animate-spin" /> : 'Save Changes'}
             </button>
             {tenant.subscription && (
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-gray-400">
                 Current: {tenant.subscription.plan?.label || '—'} · {tenant.subscription.status}
               </span>
             )}
           </div>
-          {planError && <p className="sm:col-span-3 text-xs text-red-400">{planError}</p>}
+          {planError && <p className="sm:col-span-3 text-xs text-red-600">{planError}</p>}
         </form>
       </Card>
 
       {/* Users */}
       <Card className="overflow-hidden">
-        <div className="px-5 py-3.5 border-b border-gray-800 flex items-center gap-2">
-          <Users size={15} className="text-purple-400" />
-          <h2 className="text-sm font-semibold text-white">Team Members</h2>
+        <div className="px-5 py-3.5 border-b border-gray-100 flex items-center gap-2">
+          <Users size={15} className="text-purple-500" />
+          <h2 className="text-sm font-semibold text-gray-900">Team Members</h2>
         </div>
         {users.length === 0 ? (
-          <div className="py-10 text-center text-sm text-gray-500">No users in this tenant.</div>
+          <div className="py-10 text-center text-sm text-gray-400">No users in this tenant.</div>
         ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-800 text-left text-xs text-gray-500">
-                <th className="px-5 py-3 font-medium">User</th>
-                <th className="px-5 py-3 font-medium">Role</th>
-                <th className="px-5 py-3 font-medium">Status</th>
+              <tr className="border-b border-gray-100 text-left">
+                <th className="px-5 py-3 font-semibold text-xs text-gray-400 uppercase tracking-wider">User</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-400 uppercase tracking-wider">Role</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-400 uppercase tracking-wider">Status</th>
                 <th className="px-5 py-3 font-medium"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-800">
+            <tbody className="divide-y divide-gray-50">
               {users.map(u => (
-                <tr key={u.id} className="hover:bg-gray-850/60 transition">
-                  <td className="px-5 py-3">
+                <tr key={u.id} className="hover:bg-gray-50 transition">
+                  <td className="px-5 py-3.5">
                     <div className="flex items-center gap-2.5">
                       <Avatar name={u.name} email={u.email} size={28} />
                       <div>
-                        <div className="text-gray-200">{u.name || '—'}</div>
-                        <div className="text-xs text-gray-500">{u.email}</div>
+                        <div className="text-gray-900">{u.name || '—'}</div>
+                        <div className="text-xs text-gray-400">{u.email}</div>
                       </div>
                     </div>
                   </td>
-                  <td className="px-5 py-3">
+                  <td className="px-5 py-3.5">
                     <select
                       value={u.roleId || ''}
                       onChange={e => changeRole(u, e.target.value)}
                       disabled={busy === u.id}
-                      className="px-2 py-1.5 text-xs bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-600 disabled:opacity-50"
+                      className="px-2 py-1.5 text-xs bg-white border border-gray-200 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-300 disabled:opacity-50"
                     >
                       <option value="">No role</option>
                       {roles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
                     </select>
                   </td>
-                  <td className="px-5 py-3">
+                  <td className="px-5 py-3.5">
                     <Badge tone={u.isBanned ? 'red' : 'green'}>{u.isBanned ? 'Banned' : 'Active'}</Badge>
                   </td>
-                  <td className="px-5 py-3 text-right">
+                  <td className="px-5 py-3.5 text-right">
                     <button
                       onClick={() => toggleBan(u)}
                       disabled={busy === u.id}

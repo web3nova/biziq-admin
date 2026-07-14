@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { Plus, Trash2, Loader2, X, ShieldCheck, Mail } from 'lucide-react'
 import { apiFetch } from '../lib/apiFetch'
 import { useAuth } from '../context/AuthContext'
-import { Card, PageHeader, LoadingBlock, EmptyBlock, Avatar, btnPrimary, inputClass } from '../components/ui'
+import { Card, PageHeader, LoadingBlock, EmptyBlock, Avatar, btnPrimary, btnPrimaryStyle, inputClass, PRIMARY } from '../components/ui'
 import { useNotify } from '../context/NotificationContext'
 
 export default function Admins() {
@@ -87,7 +87,7 @@ export default function Admins() {
         title="Super Admins"
         subtitle="People with full platform access."
         action={
-          <button onClick={() => setShowForm(v => !v)} className={btnPrimary}>
+          <button onClick={() => setShowForm(v => !v)} className={btnPrimary} style={btnPrimaryStyle}>
             <Plus size={14} /> Invite Admin
           </button>
         }
@@ -96,24 +96,24 @@ export default function Admins() {
       {showForm && (
         <Card className="p-5 max-w-md">
           <div className="flex items-center justify-between mb-4">
-            <span className="text-sm font-semibold text-white">Invite Super Admin</span>
-            <button type="button" onClick={closeForm} className="text-gray-500 hover:text-gray-300"><X size={16} /></button>
+            <span className="text-sm font-semibold text-gray-900">Invite Super Admin</span>
+            <button type="button" onClick={closeForm} className="text-gray-400 hover:text-gray-600"><X size={16} /></button>
           </div>
 
           {invited ? (
             <div className="flex flex-col items-center text-center gap-3 py-4">
-              <div className="w-11 h-11 rounded-full bg-blue-500/15 flex items-center justify-center">
-                <Mail size={20} className="text-blue-400" />
+              <div className="w-11 h-11 rounded-full bg-blue-50 flex items-center justify-center">
+                <Mail size={20} style={{ color: PRIMARY }} />
               </div>
-              <p className="text-sm text-gray-300">
-                Invite sent to <span className="font-semibold text-white">{invited}</span>.
+              <p className="text-sm text-gray-700">
+                Invite sent to <span className="font-semibold text-gray-900">{invited}</span>.
               </p>
-              <p className="text-xs text-gray-500">They'll set their own password via the link in the email.</p>
-              <button onClick={closeForm} className="text-xs text-blue-400 hover:text-blue-300 mt-1">Done</button>
+              <p className="text-xs text-gray-400">They'll set their own password via the link in the email.</p>
+              <button onClick={closeForm} className="text-xs hover:opacity-70 mt-1" style={{ color: PRIMARY }}>Done</button>
             </div>
           ) : (
             <form onSubmit={handleCreate} className="space-y-3">
-              <p className="text-xs text-gray-500 -mt-2 mb-1">
+              <p className="text-xs text-gray-400 -mt-2 mb-1">
                 They'll receive an email with a link to set their own password — you won't need to share credentials.
               </p>
               <input
@@ -126,8 +126,8 @@ export default function Admins() {
                 onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
                 className={inputClass}
               />
-              {formError && <p className="text-xs text-red-400">{formError}</p>}
-              <button type="submit" disabled={saving} className={`${btnPrimary} w-full`}>
+              {formError && <p className="text-xs text-red-600">{formError}</p>}
+              <button type="submit" disabled={saving} className={`${btnPrimary} w-full`} style={btnPrimaryStyle}>
                 {saving ? <Loader2 size={14} className="animate-spin" /> : 'Send Invite'}
               </button>
             </form>
@@ -135,7 +135,7 @@ export default function Admins() {
         </Card>
       )}
 
-      {error && <p className="text-sm text-red-400">{error}</p>}
+      {error && <p className="text-sm text-red-600">{error}</p>}
 
       <Card className="overflow-hidden">
         {loading ? (
@@ -145,34 +145,34 @@ export default function Admins() {
         ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-800 text-left text-xs text-gray-500">
-                <th className="px-5 py-3 font-medium">Admin</th>
-                <th className="px-5 py-3 font-medium">Added</th>
+              <tr className="border-b border-gray-100 text-left">
+                <th className="px-5 py-3 font-semibold text-xs text-gray-400 uppercase tracking-wider">Admin</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-400 uppercase tracking-wider">Added</th>
                 <th className="px-5 py-3 font-medium"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-800">
+            <tbody className="divide-y divide-gray-50">
               {admins.map(a => (
-                <tr key={a.id} className="hover:bg-gray-850/60 transition">
-                  <td className="px-5 py-3">
+                <tr key={a.id} className="hover:bg-gray-50 transition">
+                  <td className="px-5 py-3.5">
                     <div className="flex items-center gap-3">
                       <Avatar name={a.name} email={a.email} size={32} />
                       <div>
-                        <div className="text-gray-200 font-medium">{a.name || '—'}</div>
-                        <div className="text-xs text-gray-500">{a.email}</div>
+                        <div className="text-gray-900 font-medium">{a.name || '—'}</div>
+                        <div className="text-xs text-gray-400">{a.email}</div>
                       </div>
                       {a.id === me?.id && (
-                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-400">You</span>
+                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-blue-50" style={{ color: PRIMARY }}>You</span>
                       )}
                     </div>
                   </td>
-                  <td className="px-5 py-3 text-gray-500 text-xs">{new Date(a.createdAt).toLocaleDateString()}</td>
-                  <td className="px-5 py-3 text-right">
+                  <td className="px-5 py-3.5 text-gray-400 text-xs">{new Date(a.createdAt).toLocaleDateString()}</td>
+                  <td className="px-5 py-3.5 text-right">
                     {a.id !== me?.id && (
                       <button
                         onClick={() => handleDelete(a.id)}
                         disabled={busyId === a.id}
-                        className="text-red-400 hover:text-red-300 disabled:opacity-50"
+                        className="text-red-500 hover:text-red-600 disabled:opacity-50"
                         title="Remove admin"
                       >
                         <Trash2 size={15} />
