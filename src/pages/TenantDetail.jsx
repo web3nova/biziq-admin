@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Loader2, Ban, CheckCircle2, Users, ShoppingBag, CreditCard } from 'lucide-react'
+import { ArrowLeft, Loader2, Ban, Building2, CheckCircle2, Users, ShoppingBag, CreditCard, Phone, MessageCircle } from 'lucide-react'
 import { apiFetch } from '../lib/apiFetch'
 import { Card, LoadingBlock, Avatar, Badge, btnDanger, btnSuccess, btnPrimary, btnPrimaryStyle, inputClass, PRIMARY } from '../components/ui'
 
@@ -195,6 +195,35 @@ export default function TenantDetail() {
         <StatChip icon={ShoppingBag} label="Orders" value={tenant._count?.orders ?? 0} color="#d97706" />
       </div>
 
+      {/* Business info */}
+      <Card className="p-5 space-y-3">
+        <div className="flex items-center gap-2">
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: '#4166F518' }}>
+            <Building2 size={16} style={{ color: '#4166F5' }} />
+          </div>
+          <div>
+            <h2 className="text-sm font-semibold text-gray-900">Business Info</h2>
+            <p className="text-xs text-gray-400 mt-0.5">Contact details from the business profile.</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50">
+            <Phone size={15} className="text-gray-400 flex-shrink-0" />
+            <div>
+              <div className="text-[11px] text-gray-400 font-medium">Phone</div>
+              <div className="text-sm text-gray-900">{tenant.business?.phone || '—'}</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50">
+            <MessageCircle size={15} className="text-gray-400 flex-shrink-0" />
+            <div>
+              <div className="text-[11px] text-gray-400 font-medium">WhatsApp</div>
+              <div className="text-sm text-gray-900">{tenant.business?.whatsappNumber || '—'}</div>
+            </div>
+          </div>
+        </div>
+      </Card>
+
       {/* Plan override */}
       <Card className="p-5 space-y-4">
         <div className="flex items-center gap-2">
@@ -260,11 +289,10 @@ export default function TenantDetail() {
           <div className="py-10 text-center text-sm text-gray-400">No users in this tenant.</div>
         ) : (
           <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[500px]">
+          <table className="w-full text-sm min-w-[400px]">
             <thead>
               <tr className="border-b border-gray-100 text-left">
                 <th className="px-5 py-3 font-semibold text-xs text-gray-400 uppercase tracking-wider">User</th>
-                <th className="px-5 py-3 font-semibold text-xs text-gray-400 uppercase tracking-wider">WhatsApp</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-400 uppercase tracking-wider">Role</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-400 uppercase tracking-wider">Status</th>
                 <th className="px-5 py-3 font-medium"></th>
@@ -281,9 +309,6 @@ export default function TenantDetail() {
                         <div className="text-xs text-gray-400">{u.email}</div>
                       </div>
                     </div>
-                  </td>
-                  <td className="px-5 py-3.5 text-gray-700 whitespace-nowrap">
-                    {u.phone || u.whatsapp || '—'}
                   </td>
                   <td className="px-5 py-3.5">
                     <select
