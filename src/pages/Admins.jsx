@@ -143,7 +143,8 @@ export default function Admins() {
         ) : admins.length === 0 ? (
           <EmptyBlock icon={ShieldCheck} label="No super admins yet." />
         ) : (
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[400px]">
             <thead>
               <tr className="border-b border-gray-100 text-left">
                 <th className="px-5 py-3 font-semibold text-xs text-gray-400 uppercase tracking-wider">Admin</th>
@@ -162,11 +163,11 @@ export default function Admins() {
                         <div className="text-xs text-gray-400">{a.email}</div>
                       </div>
                       {a.id === me?.id && (
-                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-blue-50" style={{ color: PRIMARY }}>You</span>
+                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-blue-50 whitespace-nowrap" style={{ color: PRIMARY }}>You</span>
                       )}
                     </div>
                   </td>
-                  <td className="px-5 py-3.5 text-gray-400 text-xs">{new Date(a.createdAt).toLocaleDateString()}</td>
+                  <td className="px-5 py-3.5 text-gray-400 text-xs whitespace-nowrap">{new Date(a.createdAt).toLocaleDateString()}</td>
                   <td className="px-5 py-3.5 text-right">
                     {a.id !== me?.id && (
                       <button
@@ -183,6 +184,7 @@ export default function Admins() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </Card>
     </div>

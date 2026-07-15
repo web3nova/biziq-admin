@@ -189,7 +189,7 @@ export default function TenantDetail() {
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <StatChip icon={tenant.status === 'ACTIVE' ? CheckCircle2 : Ban} label="Status" value={tenant.status} color={tenant.status === 'ACTIVE' ? '#16a34a' : '#dc2626'} />
         <StatChip icon={Users} label="Users" value={tenant._count?.users ?? 0} color="#9333ea" />
         <StatChip icon={ShoppingBag} label="Orders" value={tenant._count?.orders ?? 0} color="#d97706" />
@@ -259,10 +259,12 @@ export default function TenantDetail() {
         {users.length === 0 ? (
           <div className="py-10 text-center text-sm text-gray-400">No users in this tenant.</div>
         ) : (
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[500px]">
             <thead>
               <tr className="border-b border-gray-100 text-left">
                 <th className="px-5 py-3 font-semibold text-xs text-gray-400 uppercase tracking-wider">User</th>
+                <th className="px-5 py-3 font-semibold text-xs text-gray-400 uppercase tracking-wider">WhatsApp</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-400 uppercase tracking-wider">Role</th>
                 <th className="px-5 py-3 font-semibold text-xs text-gray-400 uppercase tracking-wider">Status</th>
                 <th className="px-5 py-3 font-medium"></th>
@@ -279,6 +281,9 @@ export default function TenantDetail() {
                         <div className="text-xs text-gray-400">{u.email}</div>
                       </div>
                     </div>
+                  </td>
+                  <td className="px-5 py-3.5 text-gray-700 whitespace-nowrap">
+                    {u.phone || u.whatsapp || '—'}
                   </td>
                   <td className="px-5 py-3.5">
                     <select
@@ -307,6 +312,7 @@ export default function TenantDetail() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </Card>
     </div>

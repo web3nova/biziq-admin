@@ -1,5 +1,6 @@
+import { useState } from 'react'
 import { Outlet, NavLink } from 'react-router-dom'
-import { LayoutDashboard, Building2, ShieldCheck, LogOut } from 'lucide-react'
+import { LayoutDashboard, Building2, ShieldCheck, LogOut, Menu, X } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { Avatar, PRIMARY, CREAM } from './ui'
 import logoIcon from '../assets/logo-icon.png'
@@ -12,10 +13,38 @@ const navItems = [
 
 export default function AdminLayout() {
   const { user, logout } = useAuth()
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  const closeSidebar = () => setSidebarOpen(false)
 
   return (
     <div className="min-h-screen flex" style={{ background: CREAM }}>
-      <aside className="w-64 flex-shrink-0 border-r border-gray-200 flex flex-col" style={{ background: CREAM }}>
+      {/* Mobile backdrop */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/30 z-20 lg:hidden"
+          onClick={closeSidebar}
+        />
+      )}
+
+      {/* Mobile menu button */}
+      <button
+        onClick={() => setSidebarOpen(v => !v)}
+        className="fixed top-4 left-4 z-30 lg:hidden w-9 h-9 flex items-center justify-center bg-white border border-gray-200 rounded-xl shadow-sm text-gray-500 hover:text-gray-700"
+      >
+        {sidebarOpen ? <X size={16} /> : <Menu size={16} />}
+      </button>
+
+      {/* Sidebar */}
+      <aside
+        className={`
+          fixed inset-y-0 left-0 z-20 w-64 flex-shrink-0 border-r border-gray-200 flex flex-col
+          lg:static lg:z-auto
+          transition-transform duration-200
+          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        `}
+        style={{ background: CREAM }}
+      >
         <div className="flex items-center gap-2.5 px-5 py-6 border-b border-gray-100">
           <img src={logoIcon} alt="" className="w-8 h-8" />
           <div>
@@ -31,6 +60,7 @@ export default function AdminLayout() {
               key={item.path}
               to={item.path}
               end={item.path === '/'}
+              onClick={closeSidebar}
               className={({ isActive }) =>
                 `group relative flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium rounded-xl transition ${
                   isActive ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:bg-white/60 hover:text-gray-700'
@@ -64,8 +94,8 @@ export default function AdminLayout() {
           </button>
         </div>
       </aside>
-      <main className="flex-1 overflow-y-auto">
-        <div className="max-w-6xl mx-auto px-8 py-9">
+      <main className="flex-1 overflow-y-auto min-h-screen">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-9 pt-20 lg:pt-9">
           <Outlet />
         </div>
       </main>

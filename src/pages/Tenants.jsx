@@ -77,7 +77,8 @@ export default function Tenants() {
         ) : tenants.length === 0 ? (
           <EmptyBlock icon={Building2} label="No tenants found." />
         ) : (
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[700px]">
             <thead>
               <tr className="border-b border-gray-100 text-left">
                 <th className="px-5 py-3 font-semibold text-xs text-gray-400 uppercase tracking-wider">Business</th>
@@ -140,6 +141,7 @@ export default function Tenants() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </Card>
 
