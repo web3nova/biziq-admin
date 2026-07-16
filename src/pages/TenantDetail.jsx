@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Loader2, Ban, Building2, CheckCircle2, Users, ShoppingBag, CreditCard, Phone, MessageCircle } from 'lucide-react'
+import { ArrowLeft, Loader2, Ban, Building2, CheckCircle2, Users, ShoppingBag, CreditCard, Phone, MessageCircle, Trash2, AlertTriangle, X } from 'lucide-react'
 import { apiFetch } from '../lib/apiFetch'
 import { Card, LoadingBlock, Avatar, Badge, btnDanger, btnSuccess, btnPrimary, btnPrimaryStyle, inputClass, PRIMARY } from '../components/ui'
 
@@ -35,6 +35,11 @@ export default function TenantDetail() {
   const [planForm, setPlanForm] = useState({ planId: '', status: '', renewsAt: '' })
   const [planSaving, setPlanSaving] = useState(false)
   const [planError, setPlanError] = useState('')
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [deleteConfirmText, setDeleteConfirmText] = useState('')
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -85,6 +90,26 @@ export default function TenantDetail() {
       setError(err.message)
     } finally {
       setBusy(null)
+    }
+  }
+
+  const deleteTenant = async () => {
+    if (!tenant || deleteConfirmText !== tenant.name) return
+    setDeleting(true)
+    setDeleteError('')
+    try {
+      const res = await apiFetch(`/admin/tenants/${id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirmName: deleteConfirmText }),
+      })
+      const body = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(body?.message || 'Failed to delete tenant')
+      navigate('/tenants')
+    } catch (err) {
+      setDeleteError(err.message)
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -340,6 +365,87 @@ export default function TenantDetail() {
           </div>
         )}
       </Card>
+
+      {/* Danger zone */}
+      <Card className="p-5 border-red-100">
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-2">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-red-50">
+              <AlertTriangle size={16} className="text-red-500" />
+            </div>
+            <div>
+              <h2 className="text-sm font-semibold text-gray-900">Danger Zone</h2>
+              <p className="text-xs text-gray-400 mt-0.5">Permanently delete this tenant and every product, order, conversation, and user tied to it. This cannot be undone.</p>
+            </div>
+          </div>
+          <button
+            onClick={() => { setDeleteConfirmText(''); setDeleteError(''); setShowDeleteModal(true) }}
+            className="flex items-center gap-1.5 text-sm font-semibold px-4 py-2.5 rounded-xl text-white bg-red-600 hover:bg-red-700 transition"
+          >
+            <Trash2 size={14} /> Delete Tenant
+          </button>
+        </div>
+      </Card>
+
+      {showDeleteModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: 'rgba(15,23,42,0.5)' }}
+          onClick={e => { if (e.target === e.currentTarget && !deleting) setShowDeleteModal(false) }}
+        >
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+              <div className="flex items-center gap-2">
+                <AlertTriangle size={16} className="text-red-500" />
+                <h2 className="text-base font-semibold text-gray-900">Delete "{tenant.name}"?</h2>
+              </div>
+              <button onClick={() => !deleting && setShowDeleteModal(false)} className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg transition">
+                <X size={17} />
+              </button>
+            </div>
+            <div className="px-6 py-5 space-y-4">
+              <p className="text-sm text-gray-600 leading-relaxed">
+                This permanently wipes the business profile, products, orders, quotes, customers, WhatsApp conversations, team members, and every other record belonging to this tenant. There is no undo.
+              </p>
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-1.5">
+                  Type <span className="font-bold text-gray-900">{tenant.name}</span> to confirm
+                </label>
+                <input
+                  type="text"
+                  value={deleteConfirmText}
+                  onChange={e => setDeleteConfirmText(e.target.value)}
+                  placeholder={tenant.name}
+                  className={inputClass}
+                  autoFocus
+                />
+              </div>
+              {deleteError && (
+                <div className="text-xs text-red-600 bg-red-50 border border-red-100 px-3 py-2 rounded-xl">{deleteError}</div>
+              )}
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteModal(false)}
+                  disabled={deleting}
+                  className="flex-1 py-2.5 text-sm font-semibold text-gray-500 border border-gray-200 rounded-xl hover:bg-gray-50 transition disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={deleteTenant}
+                  disabled={deleting || deleteConfirmText !== tenant.name}
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-semibold text-white bg-red-600 rounded-xl hover:bg-red-700 transition disabled:opacity-40"
+                >
+                  {deleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                  {deleting ? 'Deleting…' : 'Delete Permanently'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
