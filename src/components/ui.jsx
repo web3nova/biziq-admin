@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Loader2 } from 'lucide-react'
 
 export const PRIMARY = '#4166F5'
@@ -21,14 +22,15 @@ export function avatarColor(seed) {
 // Shows a real photo (business logo / user avatar) when one is available,
 // falling back to initials-on-color only when there's no image to show.
 export function Avatar({ name, email, src, size = 36 }) {
-  if (src) {
+  const [broken, setBroken] = useState(false)
+  if (src && !broken) {
     return (
       <img
         src={src}
         alt=""
         className="rounded-full object-cover flex-shrink-0 border border-gray-100"
         style={{ width: size, height: size }}
-        onError={(e) => { e.currentTarget.style.display = 'none' }}
+        onError={() => setBroken(true)}
       />
     )
   }
